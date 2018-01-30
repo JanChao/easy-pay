@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--monitorInterval log4j可根据此时间自动刷新配置文件 单位秒-->
+<Configuration status="debug" strict="true" name="Log4jConfig">
+    <Properties>
+        <Property name="filename">D:\\logs\\EasyPay.log</Property>
+    </Properties>
+
+    <Appenders>
+        <!--日志输出到控制台-->
+        <Appender type="Console" name="STDOUT">
+            <Layout type="PatternLayout" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %t %-5level %logger{36} - %msg%n"/>
+        </Appender>
+
+        <!--日志输出到文件-->
+        <Appender type="File" name="File" fileName="${filename}">
+            <Layout type="PatternLayout" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %t %-5level %logger{36} - %msg%n"/>
+        </Appender>
+    </Appenders>
+
+    <Loggers>
+        <!--additivity 设置false 防止上级logger再次打印日志-->
+        <Logger name="com.bh.tools" level="debug" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Root level="trace">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
