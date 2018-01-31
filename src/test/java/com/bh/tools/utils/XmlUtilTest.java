@@ -29,7 +29,8 @@ public class XmlUtilTest {
         request.setMchId("123");
         request.setDeviceInfo("123");
         try {
-            XmlUtil.getMarshaller(request.getClass()).marshal(request, System.out);
+            String result = XmlUtil.toXml(UnifiedOrderRequest.class, request);
+            logger.debug(result);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
