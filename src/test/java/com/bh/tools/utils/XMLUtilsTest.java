@@ -13,7 +13,7 @@ import javax.xml.bind.JAXBException;
 /**
  * @author JanChao .
  */
-public class XmlUtilTest {
+public class XMLUtilsTest {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -29,7 +29,7 @@ public class XmlUtilTest {
         request.setMchId("123");
         request.setDeviceInfo("123");
         try {
-            String result = XmlUtil.toXml(UnifiedOrderRequest.class, request);
+            String result = XMLUtils.toXml(UnifiedOrderRequest.class, request);
             logger.debug(result);
         } catch (JAXBException e) {
             e.printStackTrace();

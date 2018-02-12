@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author JanChao .
  */
-public class XmlUtil {
+public class XMLUtils {
 
     private final static ConcurrentMap<String, JAXBContext> JAXB_CONTEXT_MAP = new ConcurrentHashMap<String, JAXBContext>();
 

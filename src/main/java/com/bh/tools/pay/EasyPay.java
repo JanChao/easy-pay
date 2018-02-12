@@ -1,7 +1,7 @@
 package com.bh.tools.pay;
 
 import com.bh.tools.pay.wx.model.UnifiedOrderRequest;
-import com.bh.tools.utils.XmlUtil;
+import com.bh.tools.utils.XMLUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -60,7 +60,7 @@ public class EasyPay {
             httpPost.setConfig(requestConfig);
             UnifiedOrderRequest request = new UnifiedOrderRequest();
             //请求的参数
-            StringEntity stringEntity = new StringEntity(XmlUtil.toXml(UnifiedOrderRequest.class, request), "UTF-8");
+            StringEntity stringEntity = new StringEntity(XMLUtils.toXml(UnifiedOrderRequest.class, request), "UTF-8");
             httpPost.setEntity(stringEntity);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             logger.debug(response.getStatusLine());
