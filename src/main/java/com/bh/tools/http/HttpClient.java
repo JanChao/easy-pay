@@ -2,11 +2,13 @@ package com.bh.tools.http;
 
 import com.bh.tools.http.model.Response;
 import com.bh.tools.utils.JsonUtils;
+import com.bh.tools.utils.xml.XMLUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
@@ -16,8 +18,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,14 +33,25 @@ import java.util.Map;
  */
 public class HttpClient {
 
+    /**
+     * 请求传参方式
+     * 1.url后拼接参数
+     * 2.表单提交方式传参
+     * 3.body中传JSON字符串
+     * 4.body中传形如a=1&b=2字符串
+     * 5.body中传XML字符串
+     */
     public static final int TRANS_TYPE_URL = 1;
-    private static final int CONNECT_TIME_OUT = 30000;
-    private static final int CONNECTION_REQUEST_TIME_OUT = 10000;
-    private static final int SOCKET_TIME_OUT = 10000;
     public static final int TRANS_TYPE_FORM_DATA = 2;
     public static final int TRANS_TYPE_FORM_JSON = 3;
     public static final int TRANS_TYPE_FORM_URL = 4;
-    private Logger logger = LogManager.getLogger(this.getClass().getSimpleName());
+    public static final int TRANS_TYPE_FORM_XML = 5;
+
+    private static final int CONNECT_TIME_OUT = 30000;
+    private static final int CONNECTION_REQUEST_TIME_OUT = 10000;
+    private static final int SOCKET_TIME_OUT = 10000;
+
+    private static final String XML_ROOT_ALIAS = "xml";
 
     private String url;
     private int connectionRequestTimeout = CONNECTION_REQUEST_TIME_OUT;
@@ -53,6 +64,8 @@ public class HttpClient {
 
     private RequestConfig requestConfig;
 
+    private Map<String, ?> requestParams;
+
     private HttpClient() {
 
     }
@@ -61,16 +74,27 @@ public class HttpClient {
         return new HttpClient();
     }
 
-    public Response post(Map<String, ?> params) {
+    public Response post() {
+        return post(null);
+    }
+
+    public Response post(String postData) {
         try {
             //初始化 closeableHttpClient、requestConfig
             buildHttpClient();
             //构造请求入参
-            HttpEntity entity = buildRequestParams(params, transType);
+            HttpEntity entity = null;
+            if (requestParams != null) {
+                entity = buildRequestParams(requestParams, transType);
+            } else if (postData != null) {
+                entity = new StringEntity(postData, "UTF-8");
+            }
 
             HttpPost httpPost = new HttpPost(url);
             httpPost.setConfig(requestConfig);
-            httpPost.setEntity(entity);
+            if (entity != null) {
+                httpPost.setEntity(entity);
+            }
             return closeableHttpClient.execute(httpPost, new HttpResponseHandler());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -82,9 +106,31 @@ public class HttpClient {
         return null;
     }
 
+    /**
+     * GET 请求 只允许url后面拼接参数
+     *
+     * @return Response 响应信息
+     */
     public Response get() {
+        try {
+            //初始化 closeableHttpClient、requestConfig
+            buildHttpClient();
+            //构造请求入参
+            buildRequestParams(requestParams, TRANS_TYPE_URL);
+
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setConfig(requestConfig);
+            return closeableHttpClient.execute(httpGet, new HttpResponseHandler());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 
     private void buildHttpClient() {
         HttpClientBuilder httpClientBuilder = HttpClients.custom();
@@ -109,6 +155,9 @@ public class HttpClient {
      */
     private HttpEntity buildRequestParams(Map<String, ?> params, int transType) throws UnsupportedEncodingException, JsonProcessingException {
         HttpEntity entity = null;
+        if (params == null) {
+            return null;
+        }
         switch (transType) {
             case TRANS_TYPE_FORM_URL:
                 List<NameValuePair> formUrlParams = new ArrayList<NameValuePair>();
@@ -119,6 +168,9 @@ public class HttpClient {
                 break;
             case TRANS_TYPE_FORM_JSON:
                 entity = new StringEntity(JsonUtils.toJSONString(params), "UTF-8");
+                break;
+            case TRANS_TYPE_FORM_XML:
+                entity = new StringEntity(XMLUtils.toXml(Map.class, params, true, XML_ROOT_ALIAS));
                 break;
             case TRANS_TYPE_FORM_DATA:
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -186,6 +238,15 @@ public class HttpClient {
 
     public HttpClient setTransType(int transType) {
         this.transType = transType;
+        return this;
+    }
+
+    public Map<String, ?> getRequestParams() {
+        return requestParams;
+    }
+
+    public HttpClient setRequestParams(Map<String, ?> requestParams) {
+        this.requestParams = requestParams;
         return this;
     }
 }

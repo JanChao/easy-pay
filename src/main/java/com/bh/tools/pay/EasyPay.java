@@ -1,7 +1,7 @@
 package com.bh.tools.pay;
 
 import com.bh.tools.pay.wx.model.UnifiedOrderRequest;
-import com.bh.tools.utils.XMLUtils;
+import com.bh.tools.utils.xml.XMLUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;

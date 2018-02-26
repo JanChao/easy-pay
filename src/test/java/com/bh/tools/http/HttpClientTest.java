@@ -18,7 +18,8 @@ public class HttpClientTest {
         params.put("a", "123");
         HttpClient httpClient = HttpClient.create()
                 .setUrl(host + "xxx")
+                .setRequestParams(params)
                 .setTransType(HttpClient.TRANS_TYPE_FORM_DATA);
-        System.out.println(JsonUtils.toJSONString(httpClient.post(params)));
+        System.out.println(JsonUtils.toJSONString(httpClient.post()));
     }
 }
